@@ -1,15 +1,27 @@
 import { createSignal } from "solid-js";
 import logo from "./assets/logo.svg";
 import { invoke } from "@tauri-apps/api/tauri";
+import { readText } from "@tauri-apps/api/clipboard";
+import CheckShortcut from "./CheckShortcut";
+
 import "./App.css";
 
 function App() {
   const [greetMsg, setGreetMsg] = createSignal("");
+  const [clipBoardText, setClipBoardText] = createSignal("");
+
   const [name, setName] = createSignal("");
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
     setGreetMsg(await invoke("greet", { name: name() }));
+  }
+
+  async function updateClipBoard() {
+    const text = await readText();
+    if (text !== null) {
+      setClipBoardText(text);
+    }
   }
 
   return (
@@ -37,13 +49,14 @@ function App() {
             onChange={(e) => setName(e.currentTarget.value)}
             placeholder="Enter a name..."
           />
-          <button type="button" onClick={() => greet()}>
+          <button type="button" onClick={() => updateClipBoard()}>
             Greet
           </button>
+          <CheckShortcut />
         </div>
       </div>
 
-      <p>{greetMsg()}</p>
+      <p>{clipBoardText()}</p>
     </div>
   );
 }
