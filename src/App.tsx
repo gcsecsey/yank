@@ -2,7 +2,7 @@ import { createSignal } from "solid-js";
 import logo from "./assets/logo.svg";
 import { invoke } from "@tauri-apps/api/tauri";
 import { readText } from "@tauri-apps/api/clipboard";
-import CheckShortcut from "./CheckShortcut";
+import Shortcut from "./Shortcut";
 
 import "./App.css";
 
@@ -52,7 +52,9 @@ function App() {
           <button type="button" onClick={() => updateClipBoard()}>
             Greet
           </button>
-          <CheckShortcut />
+          <Shortcut
+            onMessage={(s: string) => console.log(`${s} is triggered`)}
+          />
         </div>
       </div>
 
