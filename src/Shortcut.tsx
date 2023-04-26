@@ -22,4 +22,4 @@ function Shortcut({ onMessage }: { onMessage: (s: string) => void }) {
   );
 }
 
-export default CheckShortcut;
+export default Shortcut;
