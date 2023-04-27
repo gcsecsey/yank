@@ -1,27 +1,18 @@
-import { createSignal } from "solid-js";
+import { createSignal, createResource } from "solid-js";
 import logo from "./assets/logo.svg";
 import { invoke } from "@tauri-apps/api/tauri";
-import { readText } from "@tauri-apps/api/clipboard";
+import { readText, writeText } from "@tauri-apps/api/clipboard";
 import Shortcut from "./Shortcut";
 
 import "./App.css";
 
 function App() {
-  const [greetMsg, setGreetMsg] = createSignal("");
-  const [clipBoardText, setClipBoardText] = createSignal("");
+  const [clipBoardText, { refetch: refetchClipBoard }] = createResource(
+    async () => await readText()
+  );
 
-  const [name, setName] = createSignal("");
-
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("greet", { name: name() }));
-  }
-
-  async function updateClipBoard() {
-    const text = await readText();
-    if (text !== null) {
-      setClipBoardText(text);
-    }
+  async function sendToAppleNotes(note: string) {
+    await invoke("send_to_apple_notes", { note });
   }
 
   return (
@@ -44,21 +35,21 @@ function App() {
 
       <div class="row">
         <div>
+          Clipboard content (blur to refresh):
           <input
             id="greet-input"
-            onChange={(e) => setName(e.currentTarget.value)}
-            placeholder="Enter a name..."
+            placeholder="Clipboard content..."
+            value={clipBoardText() as string}
+            onBlur={() => refetchClipBoard()}
           />
-          <button type="button" onClick={() => updateClipBoard()}>
-            Greet
+          <button onClick={() => sendToAppleNotes(clipBoardText() as string)}>
+            Send to Apple Notes
           </button>
           <Shortcut
             onMessage={(s: string) => console.log(`${s} is triggered`)}
           />
         </div>
       </div>
-
-      <p>{clipBoardText()}</p>
     </div>
   );
 }
